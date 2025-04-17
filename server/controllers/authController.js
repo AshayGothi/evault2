@@ -3,27 +3,34 @@ const jwt = require('jsonwebtoken');
 const { sendVerificationEmail } = require('../utils/emailService');
 const bcrypt = require('bcrypt');
 
+// Helper to generate 6-digit code
 const generateVerificationCode = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
 const authController = {
+    // Register new user
     register: async (req, res) => {
         try {
             const { username, email, password } = req.body;
-            console.log('Registration attempt:', { username, email });
+            console.log('📥 Registration attempt:', { username, email });
+
+            if (!username || !email || !password) {
+                console.log('❌ Missing fields');
+                return res.status(400).json({ message: 'All fields are required' });
+            }
 
             const existingUser = await User.findOne({ 
                 $or: [{ email }, { username }] 
             });
             
             if (existingUser) {
-                console.log('User already exists');
+                console.log('❗ User already exists');
                 return res.status(400).json({ message: "Username or email already exists" });
             }
 
             const verificationCode = generateVerificationCode();
-            const verificationCodeExpires = new Date(Date.now() + 24*60*60*1000);
+            const verificationCodeExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hrs
 
             const user = new User({
                 username,
@@ -34,23 +41,23 @@ const authController = {
             });
 
             await user.save();
-            console.log('User saved successfully');
+            console.log('✅ User saved successfully');
 
             try {
                 await sendVerificationEmail(email, verificationCode);
-                console.log('Verification email sent');
+                console.log('📧 Verification email sent');
                 res.status(201).json({ 
-                    message: "Registration successful. Please check your email for verification code." 
+                    message: "Registration successful. Please check your email for the verification code." 
                 });
             } catch (emailError) {
-                console.error('Email sending failed:', emailError);
+                console.error('❌ Email sending failed:', emailError);
                 await User.deleteOne({ _id: user._id });
                 res.status(500).json({ 
                     message: "Failed to send verification email. Please try again." 
                 });
             }
         } catch (error) {
-            console.error('Registration error:', error);
+            console.error('❌ Registration error:', error);
             res.status(500).json({ 
                 message: "Error in registration", 
                 error: error.message 
@@ -58,6 +65,7 @@ const authController = {
         }
     },
 
+    // Verify email with code
     verifyEmail: async (req, res) => {
         try {
             const { email, code } = req.body;
@@ -83,6 +91,7 @@ const authController = {
         }
     },
 
+    // Login user
     login: async (req, res) => {
         try {
             const { username, password } = req.body;
@@ -118,6 +127,7 @@ const authController = {
         }
     },
 
+    // Resend verification code
     resendVerification: async (req, res) => {
         try {
             const { email } = req.body;
@@ -133,7 +143,7 @@ const authController = {
 
             const verificationCode = generateVerificationCode();
             user.verificationCode = verificationCode;
-            user.verificationCodeExpires = new Date(Date.now() + 24*60*60*1000);
+            user.verificationCodeExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
             await user.save();
 
             await sendVerificationEmail(email, verificationCode);
