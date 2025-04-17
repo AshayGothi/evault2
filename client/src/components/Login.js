@@ -1,56 +1,79 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Container, Alert } from '@mui/material';
+import {
+    Box,
+    TextField,
+    Button,
+    Typography,
+    Container,
+    Alert,
+    Link as MuiLink
+} from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
-    const [credentials, setCredentials] = useState({
-        username: '',
-        password: ''
-    });
+    const [credentials, setCredentials] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setLoading(true);
         try {
             const response = await axios.post('http://localhost:5000/api/auth/login', credentials);
-            console.log('Login response:', response.data); // Debug log
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('userId', response.data.userId);
-            localStorage.setItem('username', response.data.username);
-            localStorage.setItem('email', response.data.email);
+            const { token, userId, username, email } = response.data;
+            localStorage.setItem('token', token);
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('username', username);
+            localStorage.setItem('email', email);
             navigate('/dashboard');
-        } catch (error) {
-            console.error('Login error:', error); // Debug log
-            setError(error.response?.data?.message || 'Login failed');
+        } catch (err) {
+            console.error('Login error:', err);
+            setError(err.response?.data?.message || 'Login failed');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <Container maxWidth="xs">
-            <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box
+                sx={{
+                    mt: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                }}
+            >
                 <Typography component="h1" variant="h5">
-                    Sign in
+                    Sign In
                 </Typography>
-                <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2, width: '100%' }}>
                     <TextField
-                        margin="normal"
-                        required
-                        fullWidth
+                        name="username"
                         label="Username"
+                        fullWidth
+                        required
+                        margin="normal"
                         autoFocus
                         value={credentials.username}
-                        onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+                        onChange={handleChange}
                     />
                     <TextField
-                        margin="normal"
-                        required
-                        fullWidth
+                        name="password"
                         label="Password"
                         type="password"
+                        fullWidth
+                        required
+                        margin="normal"
                         value={credentials.password}
-                        onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                        onChange={handleChange}
                     />
                     {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
                     <Button
@@ -58,12 +81,16 @@ const Login = () => {
                         fullWidth
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
+                        disabled={loading}
                     >
-                        Sign In
+                        {loading ? 'Signing In...' : 'Sign In'}
                     </Button>
-                    <Link to="/register">
-                        Don't have an account? Sign Up
-                    </Link>
+                    <Typography variant="body2" align="center">
+                        Don't have an account?{' '}
+                        <MuiLink component={Link} to="/register">
+                            Sign Up
+                        </MuiLink>
+                    </Typography>
                 </Box>
             </Box>
         </Container>

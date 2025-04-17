@@ -12,6 +12,8 @@ import axios from 'axios';
 import DocumentPreview from './DocumentPreview';
 import ShareDialog from './ShareDialog';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://your-backend-url.com'; // fallback just in case
+
 const DocumentList = ({ documents = [], onDocumentUpdate }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
@@ -30,11 +32,11 @@ const DocumentList = ({ documents = [], onDocumentUpdate }) => {
     };
 
     const handleDownload = async (documentId, fileName, e) => {
-        if (e) e.stopPropagation();
+        e.stopPropagation();
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(
-                `http://localhost:5000/api/documents/download/${documentId}`,
+                `${API_URL}/api/documents/download/${documentId}`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                     responseType: 'blob'
@@ -47,7 +49,7 @@ const DocumentList = ({ documents = [], onDocumentUpdate }) => {
             link.setAttribute('download', fileName);
             document.body.appendChild(link);
             link.click();
-            link.parentNode.removeChild(link);
+            link.remove();
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Download error:', error);
@@ -66,7 +68,7 @@ const DocumentList = ({ documents = [], onDocumentUpdate }) => {
             setLoading(true);
             const token = localStorage.getItem('token');
             const response = await axios.post(
-                `http://localhost:5000/api/documents/verify/${documentId}`,
+                `${API_URL}/api/documents/verify/${documentId}`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -83,7 +85,7 @@ const DocumentList = ({ documents = [], onDocumentUpdate }) => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/documents/${documentToDelete}`, {
+            await axios.delete(`${API_URL}/api/documents/${documentToDelete}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             onDocumentUpdate();
@@ -102,11 +104,9 @@ const DocumentList = ({ documents = [], onDocumentUpdate }) => {
     );
 
     const sortedDocuments = filteredDocuments.sort((a, b) => {
-        if (order === 'asc') {
-            return a[orderBy] < b[orderBy] ? -1 : 1;
-        } else {
-            return b[orderBy] < a[orderBy] ? -1 : 1;
-        }
+        const valA = a[orderBy];
+        const valB = b[orderBy];
+        return order === 'asc' ? (valA < valB ? -1 : 1) : (valB < valA ? -1 : 1);
     });
 
     return (
@@ -202,11 +202,10 @@ const DocumentList = ({ documents = [], onDocumentUpdate }) => {
                 </Table>
             </TableContainer>
 
+            {/* Delete Confirmation Dialog */}
             <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
                 <DialogTitle>Confirm Delete</DialogTitle>
-                <DialogContent>
-                    Are you sure you want to delete this document?
-                </DialogContent>
+                <DialogContent>Are you sure you want to delete this document?</DialogContent>
                 <DialogActions>
                     <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
                     <Button onClick={handleDelete} color="error" disabled={loading}>
@@ -215,12 +214,14 @@ const DocumentList = ({ documents = [], onDocumentUpdate }) => {
                 </DialogActions>
             </Dialog>
 
+            {/* Document Preview */}
             <DocumentPreview
                 document={selectedDocument}
                 open={Boolean(selectedDocument)}
                 onClose={() => setSelectedDocument(null)}
             />
 
+            {/* Share Dialog */}
             <ShareDialog
                 open={shareDialogOpen}
                 onClose={() => {
@@ -231,6 +232,7 @@ const DocumentList = ({ documents = [], onDocumentUpdate }) => {
                 onShare={onDocumentUpdate}
             />
 
+            {/* Loading Spinner Overlay */}
             {loading && (
                 <Box sx={{
                     position: 'fixed',

@@ -16,7 +16,7 @@ const Dashboard = () => {
                 return;
             }
 
-            const response = await axios.get('http://localhost:5000/api/documents', {
+            const response = await axios.get('https://evault2.onrender.com/api/documents', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setDocuments(response.data);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -15,28 +15,39 @@ const ShareDialog = ({ open, onClose, documentId, onShare }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (!open) {
+            setUserId('');
+            setError('');
+            setLoading(false);
+        }
+    }, [open]);
+
     const handleShare = async () => {
+        if (!userId.trim()) {
+            setError('Please enter a valid user ID');
+            return;
+        }
+
         try {
             setLoading(true);
             setError('');
-            
-            if (!userId.trim()) {
-                setError('Please enter a user ID');
-                return;
-            }
-    
+
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/documents/share',
+            await axios.post(
+                'http://localhost:5000/api/documents/share',
                 { documentId, userId },
-                { headers: { Authorization: `Bearer ${token}` }}
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             );
-            
+
             onShare && onShare();
             onClose();
-            setUserId('');
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error sharing document';
-            setError(errorMessage);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error sharing document');
         } finally {
             setLoading(false);
         }
@@ -62,14 +73,16 @@ const ShareDialog = ({ open, onClose, documentId, onShare }) => {
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button 
-                    onClick={handleShare} 
-                    color="primary" 
+                <Button onClick={onClose} disabled={loading}>
+                    Cancel
+                </Button>
+                <Button
+                    onClick={handleShare}
+                    color="primary"
                     variant="contained"
                     disabled={loading}
                 >
-                    Share
+                    {loading ? 'Sharing...' : 'Share'}
                 </Button>
             </DialogActions>
         </Dialog>
