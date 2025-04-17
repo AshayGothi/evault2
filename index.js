@@ -14,7 +14,8 @@ console.log("📨 Email Config from ENV:", process.env.EMAIL_USER || 'Missing', 
 const app = express();
 
 // Import routes and middleware
-const authRoutes = require('./server/routes/authRoutes');
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
 const documentRoutes = require('./server/routes/documentRoutes');
 const errorHandler = require('./server/middleware/errorHandler');
 const logger = require('./server/middleware/logger');

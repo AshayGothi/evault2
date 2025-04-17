@@ -23,7 +23,7 @@ const Register = () => {
 
         try {
             console.log('📤 Sending data to API:', formData);
-            await axios.post('https://evault2.onrender.com/api/auth/register', formData);
+            await axios.post('https://evault2.onrender.com/api/auth/register', formData); // ✅ fixed URL
             navigate('/login');
         } catch (err) {
             console.error('❌ Registration error:', err.response?.data || err.message);

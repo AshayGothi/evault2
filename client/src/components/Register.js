@@ -34,11 +34,8 @@ const Register = () => {
     // Initial registration submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Clear previous errors
         setError('');
 
-        // Validate passwords match
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords don't match");
             return;
@@ -46,38 +43,32 @@ const Register = () => {
 
         try {
             setLoading(true);
-            // Send registration request
-            await axios.post('http://localhost:5000/api/auth/register', {
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
                 username: formData.username,
                 email: formData.email,
                 password: formData.password
             });
-            
-            // Move to verification step
+
             setActiveStep(1);
         } catch (error) {
-            // Handle registration errors
             setError(error.response?.data?.message || 'Registration failed');
         } finally {
             setLoading(false);
         }
     };
 
-    // Email verification
     const handleVerification = async () => {
         try {
             setLoading(true);
-            // Verify email code
-            await axios.post('http://localhost:5000/api/auth/verify-email', {
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/verify-email`, {
                 email: formData.email,
                 code: verificationCode
             });
 
-            // Navigate to login with success message
-            navigate('/login', { 
-                state: { 
-                    message: 'Registration successful! Please login.' 
-                } 
+            navigate('/login', {
+                state: {
+                    message: 'Registration successful! Please login.'
+                }
             });
         } catch (error) {
             setError('Invalid verification code');
@@ -86,16 +77,13 @@ const Register = () => {
         }
     };
 
-    // Resend verification code
     const handleResendCode = async () => {
         try {
             setLoading(true);
-            // Request new verification code
-            await axios.post('http://localhost:5000/api/auth/resend-verification', {
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/resend-verification`, {
                 email: formData.email
             });
-            
-            // Reset resend timer and show success message
+
             setCanResend(false);
             setResendTimer(60);
             setError('');
