@@ -2,10 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
-const authRoutes = require('./routes/authRoutes');
-const documentRoutes = require('./routes/documentRoutes');
-const errorHandler = require('./middleware/errorHandler');
-const logger = require('./middleware/logger');
+const authRoutes = require('./server/routes/authRoutes');
+const documentRoutes = require('./server/routes/documentRoutes');
+const errorHandler = require('./server/middleware/errorHandler');
+const logger = require('./server/middleware/logger');
 
 const app = express();
 
