@@ -16,18 +16,22 @@ const Register = () => {
         e.preventDefault();
         setError('');
 
-        if (!formData.username || !formData.email || !formData.password) {
+        const { username, email, password } = formData;
+
+        if (!username || !email || !password) {
             setError('Please fill out all fields');
             return;
         }
 
         try {
             console.log('📤 Sending data to API:', formData);
-            await axios.post('https://evault2.onrender.com/api/auth/register', formData); // ✅ fixed URL
+            await axios.post('/api/auth/register', formData);
+
             navigate('/login');
         } catch (err) {
             console.error('❌ Registration error:', err.response?.data || err.message);
-            setError('Registration failed. Please try again.');
+            const message = err.response?.data?.message || 'Registration failed. Please try again.';
+            setError(message);
         }
     };
 
