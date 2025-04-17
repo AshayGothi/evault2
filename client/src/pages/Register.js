@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Container } from '@mui/material';
+import { Box, TextField, Button, Typography, Container, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,38 +9,43 @@ const Register = () => {
         email: '',
         password: ''
     });
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+
+        if (!formData.username || !formData.email || !formData.password) {
+            setError('Please fill out all fields');
+            return;
+        }
+
         try {
-            await axios.post('http://localhost:5000/api/auth/register', formData);
+            console.log('📤 Sending data to API:', formData);
+            await axios.post('https://evault2.onrender.com/api/auth/register', formData);
             navigate('/login');
-        } catch (error) {
-            console.error('Registration error:', error);
+        } catch (err) {
+            console.error('❌ Registration error:', err.response?.data || err.message);
+            setError('Registration failed. Please try again.');
         }
     };
 
     return (
         <Container component="main" maxWidth="xs">
-            <Box
-                sx={{
-                    marginTop: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
+            <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <Typography component="h1" variant="h5">
                     Register
                 </Typography>
+
+                {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+
                 <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                     <TextField
                         margin="normal"
                         required
                         fullWidth
                         label="Username"
-                        autoFocus
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     />
