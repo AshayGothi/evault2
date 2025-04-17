@@ -43,7 +43,7 @@ const Register = () => {
 
         try {
             setLoading(true);
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+            await axios.post(`${process.env.REACT_APP_API}/api/auth/register`, {
                 username: formData.username,
                 email: formData.email,
                 password: formData.password
@@ -60,7 +60,7 @@ const Register = () => {
     const handleVerification = async () => {
         try {
             setLoading(true);
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/verify-email`, {
+            await axios.post(`${process.env.REACT_APP_API}/api/auth/verify-email`, {
                 email: formData.email,
                 code: verificationCode
             });
@@ -80,7 +80,7 @@ const Register = () => {
     const handleResendCode = async () => {
         try {
             setLoading(true);
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/resend-verification`, {
+            await axios.post(`${process.env.REACT_APP_API}/api/auth/resend-verification`, {
                 email: formData.email
             });
 

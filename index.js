@@ -28,6 +28,7 @@ app.use(logger);
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/auth', require('./routes/auth'));
 
 // Serve frontend static files (React build folder)
 app.use(express.static(path.join(__dirname, 'client', 'build')));
