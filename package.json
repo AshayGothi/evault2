@@ -1,14 +1,15 @@
 {
   "name": "evault",
   "version": "1.0.0",
-  "description": "",
-  "main": "test.js",
+  "description": "eVault - Legal document storage on blockchain",
+  "main": "server/index.js",
   "type": "commonjs",
   "scripts": {
+    "start": "node server/index.js",
     "install-client": "cd client && npm install",
     "install-server": "cd server && npm install",
-    "heroku-postbuild": "cd client && npm install && npm run build",
-    "start": "cd server && node index.js",
+    "build": "cd client && npm run build",
+    "heroku-postbuild": "npm run install-client && npm run install-server && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

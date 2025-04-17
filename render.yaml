@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: evault
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: MONGO_URI
+        value: mongodb+srv://Ashay:pranjal1@cluster0.ow5aq2u.mongodb.net/evaultDB?retryWrites=true&w=majority&appName=Cluster0
+      - key: EMAIL_USER
+        value: ashay.gothi.nsk@gmail.com
+      - key: EMAIL_PASS
+        value: frxfbosdlicqqlvf

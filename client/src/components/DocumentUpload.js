@@ -1,23 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-    Paper, 
-    TextField, 
-    Button, 
-    Box, 
-    Typography, 
-    LinearProgress, 
-    Alert, 
-    IconButton, 
-    List, 
-    ListItem, 
+import {
+    Paper,
+    TextField,
+    Button,
+    Box,
+    Typography,
+    LinearProgress,
+    Alert,
+    IconButton,
+    List,
+    ListItem,
     ListItemText,
-    Dialog, 
-    DialogTitle, 
-    DialogContent, 
+    Dialog,
+    DialogTitle,
+    DialogContent,
     DialogActions,
-    FormControl, 
-    InputLabel, 
-    Select, 
+    FormControl,
+    InputLabel,
+    Select,
     MenuItem
 } from '@mui/material';
 import { CloudUpload, Close, RemoveRedEye } from '@mui/icons-material';
@@ -47,7 +47,6 @@ const DocumentUpload = ({ onUploadSuccess }) => {
 
     useEffect(() => {
         return () => {
-            // Cleanup URLs when component unmounts
             if (previewUrl && !previewUrl.startsWith('data:')) {
                 URL.revokeObjectURL(previewUrl);
             }
@@ -131,7 +130,7 @@ const DocumentUpload = ({ onUploadSuccess }) => {
             if (!token) {
                 throw new Error('Not authenticated');
             }
-            
+
             for (const file of files) {
                 const formData = new FormData();
                 formData.append('file', file);
@@ -178,21 +177,21 @@ const DocumentUpload = ({ onUploadSuccess }) => {
     const renderPreview = () => {
         try {
             if (!previewUrl) return null;
-            
+
             if (previewUrl.startsWith('data:image')) {
                 return (
-                    <img 
-                        src={previewUrl} 
-                        alt="Preview" 
-                        style={{ maxWidth: '100%', height: 'auto' }} 
+                    <img
+                        src={previewUrl}
+                        alt="Preview"
+                        style={{ maxWidth: '100%', height: 'auto' }}
                     />
                 );
             } else {
                 return (
-                    <iframe 
-                        src={previewUrl} 
-                        width="100%" 
-                        height="500px" 
+                    <iframe
+                        src={previewUrl}
+                        width="100%"
+                        height="500px"
                         title="Document Preview"
                         sandbox="allow-same-origin"
                     />
@@ -272,16 +271,16 @@ const DocumentUpload = ({ onUploadSuccess }) => {
                                 secondaryAction={
                                     <Box>
                                         {(file.type.startsWith('image/') || file.type === 'application/pdf') && (
-                                            <IconButton 
-                                                edge="end" 
+                                            <IconButton
+                                                edge="end"
                                                 onClick={() => handlePreview(file)}
                                                 sx={{ mr: 1 }}
                                             >
                                                 <RemoveRedEye />
                                             </IconButton>
                                         )}
-                                        <IconButton 
-                                            edge="end" 
+                                        <IconButton
+                                            edge="end"
                                             onClick={() => removeFile(index)}
                                         >
                                             <Close />
@@ -289,7 +288,7 @@ const DocumentUpload = ({ onUploadSuccess }) => {
                                     </Box>
                                 }
                             >
-                                <ListItemText 
+                                <ListItemText
                                     primary={file.name}
                                     secondary={`${(file.size / 1024 / 1024).toFixed(2)} MB`}
                                 />
@@ -329,8 +328,8 @@ const DocumentUpload = ({ onUploadSuccess }) => {
                 </Button>
             </Box>
 
-            <Dialog 
-                open={openPreview} 
+            <Dialog
+                open={openPreview}
                 onClose={() => {
                     setOpenPreview(false);
                     setPreviewUrl(null);
