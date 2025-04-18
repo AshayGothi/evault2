@@ -25,7 +25,9 @@ const Register = () => {
 
         try {
             console.log('📤 Sending data to API:', formData);
-            await axios.post('/api/auth/register', formData);
+
+            // ✅ Updated backend URL
+            await axios.post('https://evault2-1.onrender.com/api/auth/register', formData);
 
             navigate('/login');
         } catch (err) {
