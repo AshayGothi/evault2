@@ -1,90 +1,34 @@
-import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Container, Alert } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+const express = require('express');
+const mongoose = require('mongoose');
+const path = require('path');
+const dotenv = require('dotenv');
+const cors = require('cors');
 
-const Register = () => {
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: ''
-    });
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+dotenv.config();
+const app = express();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+app.use(cors());
+app.use(express.json());
 
-        const { username, email, password } = formData;
+// MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log('✅ MongoDB connected'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
 
-        if (!username || !email || !password) {
-            setError('Please fill out all fields');
-            return;
-        }
+// API routes
+const authRoutes = require('./routes/auth');
+const documentRoutes = require('./routes/documentRoutes');
+app.use('/api/auth', authRoutes);
+app.use('/api/documents', documentRoutes);
 
-        try {
-            console.log('📤 Sending data to API:', formData);
+// Serve React static files
+app.use(express.static(path.join(__dirname, '../client/build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
 
-            // ✅ Updated backend URL
-            await axios.post('https://evault2-1.onrender.com/api/auth/register', formData);
-
-            navigate('/login');
-        } catch (err) {
-            console.error('❌ Registration error:', err.response?.data || err.message);
-            const message = err.response?.data?.message || 'Registration failed. Please try again.';
-            setError(message);
-        }
-    };
-
-    return (
-        <Container component="main" maxWidth="xs">
-            <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography component="h1" variant="h5">
-                    Register
-                </Typography>
-
-                {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-
-                <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Username"
-                        value={formData.username}
-                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    />
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    />
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Register
-                    </Button>
-                </Box>
-            </Box>
-        </Container>
-    );
-};
-
-export default Register;
+// Server listen
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
